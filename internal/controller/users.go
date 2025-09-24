@@ -78,8 +78,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 }
 
 func (c *UserController) DeleteUser(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
@@ -95,9 +94,17 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 
 func (c *UserController) UpdateUser(ctx *gin.Context) {
 	var user model.User
-
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
 	if err := ctx.BindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+	if id != user.ID {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "id in path and body do not match"})
 		return
 	}
 
