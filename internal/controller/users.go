@@ -54,12 +54,7 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 	}
 
 	user, err := c.service.GetByID(id)
-	if err != nil {
-		if err == repository.ErrUserNotFound {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+	if handleError(ctx, err) {
 		return
 	}
 
@@ -75,9 +70,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	}
 
 	createdUser, err := c.service.Create(&user)
-	if err != nil {
-		// Add proper error handling with correct codes based on the type of error
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if handleError(ctx, err) {
 		return
 	}
 
@@ -93,12 +86,7 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 	}
 	err = c.service.Delete(id)
 
-	if err != nil {
-		if err == repository.ErrUserNotFound {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+	if handleError(ctx, err) {
 		return
 	}
 
@@ -114,15 +102,21 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 	}
 
 	updatedUser, err := c.service.Update(&user)
-	if err != nil {
-		if err == repository.ErrUserNotFound {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-			return
-		}
-		//ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+	if handleError(ctx, err) {
 		return
 	}
 
 	ctx.JSON(http.StatusOK, updatedUser)
+}
+
+func handleError(ctx *gin.Context, err error) bool {
+	if err == repository.ErrUserNotFound {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return true
+	}
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return true
+	}
+	return false
 }
