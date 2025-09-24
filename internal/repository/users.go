@@ -4,6 +4,7 @@ import (
 	"context"
 	"cruder/internal/model"
 	"database/sql"
+	"errors"
 )
 
 type UserRepository interface {
@@ -48,7 +49,7 @@ func (r *userRepository) GetByUsername(username string) (*model.User, error) {
 	if err := r.db.QueryRowContext(context.Background(), `SELECT id, username, email, full_name FROM users WHERE username = $1`, username).
 		Scan(&u.ID, &u.Username, &u.Email, &u.FullName); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, errors.New("user not found")
 		}
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func (r *userRepository) GetByID(id int64) (*model.User, error) {
 	if err := r.db.QueryRowContext(context.Background(), `SELECT id, username, email, full_name FROM users WHERE id = $1`, id).
 		Scan(&u.ID, &u.Username, &u.Email, &u.FullName); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, errors.New("user not found")
 		}
 		return nil, err
 	}
