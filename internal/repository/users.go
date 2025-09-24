@@ -11,6 +11,8 @@ type UserRepository interface {
 	GetAll() ([]model.User, error)
 	GetByUsername(username string) (*model.User, error)
 	GetByID(id int64) (*model.User, error)
+	Create(user *model.User) (*model.User, error)
+	Delete(id int64) error
 }
 
 type userRepository struct {
@@ -49,7 +51,7 @@ func (r *userRepository) GetByUsername(username string) (*model.User, error) {
 	if err := r.db.QueryRowContext(context.Background(), `SELECT id, username, email, full_name FROM users WHERE username = $1`, username).
 		Scan(&u.ID, &u.Username, &u.Email, &u.FullName); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("user not found")
+			return nil, ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -61,9 +63,36 @@ func (r *userRepository) GetByID(id int64) (*model.User, error) {
 	if err := r.db.QueryRowContext(context.Background(), `SELECT id, username, email, full_name FROM users WHERE id = $1`, id).
 		Scan(&u.ID, &u.Username, &u.Email, &u.FullName); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("user not found")
+			return nil, ErrUserNotFound
 		}
 		return nil, err
 	}
 	return &u, nil
 }
+
+func (r *userRepository) Create(user *model.User) (*model.User, error) {
+	var u model.User
+	if err := r.db.QueryRowContext(context.Background(), `INSERT INTO users (username, email, full_name) VALUES ($1, $2, $3) RETURNING id, username, email, full_name`, user.Username, user.Email, user.FullName).
+		Scan(&u.ID, &u.Username, &u.Email, &u.FullName); err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (r *userRepository) Delete(id int64) error {
+	var idCheck int64
+	if err := r.db.QueryRowContext(context.Background(), `DELETE FROM users WHERE id = $1 RETURNING id`, id).
+		Scan(&idCheck); err != nil {
+		if err == sql.ErrNoRows {
+			return ErrUserNotFound
+		} else {
+			return err
+		}
+	}
+	if idCheck == 0 {
+		return ErrUserNotFound
+	}
+	return nil
+}
+
+var ErrUserNotFound = errors.New("user not found")
