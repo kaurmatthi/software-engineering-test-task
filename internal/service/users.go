@@ -11,6 +11,7 @@ type UserService interface {
 	GetByID(id int64) (*model.User, error)
 	Create(user *model.User) (*model.User, error)
 	Delete(id int64) error
+	Update(user *model.User) (*model.User, error)
 }
 
 type userService struct {
@@ -40,4 +41,9 @@ func (s *userService) Create(user *model.User) (*model.User, error) {
 
 func (s *userService) Delete(id int64) error {
 	return s.repo.Delete(id)
+}
+
+func (s *userService) Update(user *model.User) (*model.User, error) {
+	// Validate user
+	return s.repo.Update(user)
 }

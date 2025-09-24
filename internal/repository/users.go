@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetByID(id int64) (*model.User, error)
 	Create(user *model.User) (*model.User, error)
 	Delete(id int64) error
+	Update(user *model.User) (*model.User, error)
 }
 
 type userRepository struct {
@@ -71,12 +72,11 @@ func (r *userRepository) GetByID(id int64) (*model.User, error) {
 }
 
 func (r *userRepository) Create(user *model.User) (*model.User, error) {
-	var u model.User
 	if err := r.db.QueryRowContext(context.Background(), `INSERT INTO users (username, email, full_name) VALUES ($1, $2, $3) RETURNING id, username, email, full_name`, user.Username, user.Email, user.FullName).
-		Scan(&u.ID, &u.Username, &u.Email, &u.FullName); err != nil {
+		Scan(&user.ID, &user.Username, &user.Email, &user.FullName); err != nil {
 		return nil, err
 	}
-	return &u, nil
+	return user, nil
 }
 
 func (r *userRepository) Delete(id int64) error {
@@ -93,6 +93,18 @@ func (r *userRepository) Delete(id int64) error {
 		return ErrUserNotFound
 	}
 	return nil
+}
+
+func (r *userRepository) Update(user *model.User) (*model.User, error) {
+	if err := r.db.QueryRowContext(context.Background(), `UPDATE users SET username = $1, email = $2, full_name = $3 WHERE id = $4 RETURNING id, username, email, full_name`, user.Username, user.Email, user.FullName, user.ID).
+		Scan(&user.ID, &user.Username, &user.Email, &user.FullName); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrUserNotFound
+		} else {
+			return nil, err
+		}
+	}
+	return user, nil
 }
 
 var ErrUserNotFound = errors.New("user not found")

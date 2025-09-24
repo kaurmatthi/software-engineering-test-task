@@ -104,3 +104,25 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusNoContent, nil)
 }
+
+func (c *UserController) UpdateUser(ctx *gin.Context) {
+	var user model.User
+
+	if err := ctx.BindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	updatedUser, err := c.service.Update(&user)
+	if err != nil {
+		if err == repository.ErrUserNotFound {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+			return
+		}
+		//ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedUser)
+}
