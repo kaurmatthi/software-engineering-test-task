@@ -120,20 +120,22 @@ func handleError(ctx *gin.Context, err error) bool {
 	if err == nil {
 		return false
 	}
-	switch err {
-	case repository.ErrUserNotFound:
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return true
-	case repository.ErrUserAlreadyExists:
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		return true
-	case repository.ErrUsernameAlreadyExists:
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		return true
-	case repository.ErrEmailAlreadyExists:
-		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+
+	if status, ok := errToStatus[err]; ok {
+		ctx.JSON(status, gin.H{"error": err.Error()})
 		return true
 	}
+
 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 	return true
+}
+
+var errToStatus = map[error]int{
+	repository.ErrUserNotFound:          http.StatusNotFound,
+	repository.ErrUserAlreadyExists:     http.StatusConflict,
+	repository.ErrUsernameAlreadyExists: http.StatusConflict,
+	repository.ErrEmailAlreadyExists:    http.StatusConflict,
+	service.ErrInvalidEmail:             http.StatusBadRequest,
+	service.ErrInvalidUsername:          http.StatusBadRequest,
+	service.ErrInvalidFullName:          http.StatusBadRequest,
 }
