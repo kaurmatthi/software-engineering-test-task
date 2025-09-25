@@ -5,6 +5,8 @@ import (
 	"cruder/internal/model"
 	"database/sql"
 	"errors"
+
+	"github.com/lib/pq"
 )
 
 type UserRepository interface {
@@ -72,8 +74,19 @@ func (r *userRepository) GetByID(id int64) (*model.User, error) {
 }
 
 func (r *userRepository) Create(user *model.User) (*model.User, error) {
+	// Need to catch unique constraint violations, right now they will return as 500 errors
 	if err := r.db.QueryRowContext(context.Background(), `INSERT INTO users (username, email, full_name) VALUES ($1, $2, $3) RETURNING id, username, email, full_name`, user.Username, user.Email, user.FullName).
 		Scan(&user.ID, &user.Username, &user.Email, &user.FullName); err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+			switch pqErr.Constraint {
+			case "users_username_key":
+				return nil, ErrUsernameAlreadyExists
+			case "users_email_key":
+				return nil, ErrEmailAlreadyExists
+			default:
+				return nil, ErrUserAlreadyExists
+			}
+		}
 		return nil, err
 	}
 	return user, nil
@@ -108,3 +121,6 @@ func (r *userRepository) Update(user *model.User) (*model.User, error) {
 }
 
 var ErrUserNotFound = errors.New("user not found")
+var ErrUserAlreadyExists = errors.New("user already exists")
+var ErrUsernameAlreadyExists = errors.New("username already exists")
+var ErrEmailAlreadyExists = errors.New("email already exists")

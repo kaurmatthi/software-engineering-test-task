@@ -117,13 +117,23 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 }
 
 func handleError(ctx *gin.Context, err error) bool {
-	if err == repository.ErrUserNotFound {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+	if err == nil {
+		return false
+	}
+	switch err {
+	case repository.ErrUserNotFound:
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return true
+	case repository.ErrUserAlreadyExists:
+		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return true
+	case repository.ErrUsernameAlreadyExists:
+		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return true
+	case repository.ErrEmailAlreadyExists:
+		ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return true
 	}
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-		return true
-	}
-	return false
+	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+	return true
 }
