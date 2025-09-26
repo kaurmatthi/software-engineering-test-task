@@ -10,6 +10,16 @@ services:
       POSTGRES_HOST: db
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+  cruder-app:
+    build: .
+    container_name: cruder-app
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_DSN: "host=db port=5432 user=postgres password=postgres dbname=postgres sslmode=disable"
+    depends_on:
+      - db
+    restart: on-failure
 
 volumes:
   postgres_data:
