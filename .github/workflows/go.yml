@@ -25,7 +25,13 @@ jobs:
       run: go test -v -cover ./...
 
     - name: Run go fmt
-      run: test -z "$(gofmt -l .)"
+      run: |
+        fmt_out=$(gofmt -l .)
+        if [ -n "$fmt_out" ]; then
+          echo "The following files are not formatted:"
+          echo "$fmt_out"
+          exit 1
+        fi
 
     - name: Vet
       run: go vet ./...
