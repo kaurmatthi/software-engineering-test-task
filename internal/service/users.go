@@ -25,7 +25,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 }
 
 func (s *userService) GetAll() ([]model.User, error) {
-	return s.repo.GetAll()
+return s.repo.GetAll()
 }
 
 func (s *userService) GetByUsername(username string) (*model.User, error) {

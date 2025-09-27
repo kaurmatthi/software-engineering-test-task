@@ -24,5 +24,8 @@ jobs:
     - name: Test
       run: go test -v -cover ./...
 
+    - name: Run go fmt
+      run: test -z "$(gofmt -l .)"
+
     - name: Vet
       run: go vet ./...
