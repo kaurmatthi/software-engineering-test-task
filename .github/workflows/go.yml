@@ -27,7 +27,7 @@ jobs:
     - name: Vet
       run: go vet ./...
 
-    - name: Run go fmt
+    - name: Fmt
       run: |
         fmt_out=$(gofmt -l .)
         if [ -n "$fmt_out" ]; then
@@ -40,3 +40,8 @@ jobs:
       uses: golangci/golangci-lint-action@v8
       with:
         version: v2.5
+  
+    - name: Run Gosec Security Scanner
+      uses: securego/gosec@master
+      with:
+        args: ./...
