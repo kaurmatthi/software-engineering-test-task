@@ -24,6 +24,9 @@ jobs:
     - name: Test
       run: go test -v -cover ./...
 
+    - name: Vet
+      run: go vet ./...
+
     - name: Run go fmt
       run: |
         fmt_out=$(gofmt -l .)
@@ -32,6 +35,3 @@ jobs:
           echo "$fmt_out"
           exit 1
         fi
-
-    - name: Vet
-      run: go vet ./...
