@@ -31,7 +31,6 @@ func (r *userRepository) GetAll() ([]model.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	var users []model.User
 	for rows.Next() {
@@ -43,6 +42,10 @@ func (r *userRepository) GetAll() ([]model.User, error) {
 	}
 
 	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Close(); err != nil {
 		return nil, err
 	}
 
