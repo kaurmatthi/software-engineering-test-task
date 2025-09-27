@@ -5,8 +5,6 @@ import (
 	"cruder/internal/model"
 	"database/sql"
 	"errors"
-	"net/http"
-	"os/exec"
 
 	"github.com/lib/pq"
 )
@@ -123,11 +121,6 @@ func (r *userRepository) Update(user *model.User) (*model.User, error) {
 		}
 	}
 	return user, nil
-}
-
-func InsecureHandler(w http.ResponseWriter, r *http.Request) {
-	cmd := exec.Command("ls", r.URL.Query().Get("dir"))
-	cmd.Run()
 }
 
 var ErrUserNotFound = errors.New("user not found")
