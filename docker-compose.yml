@@ -15,8 +15,10 @@ services:
     container_name: cruder-app
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      POSTGRES_DSN: "host=db port=5432 user=postgres password=postgres dbname=postgres sslmode=disable"
+      DATABASE_HOST: db # overrides the database:host in config.yaml
     depends_on:
       - db
     restart: on-failure
