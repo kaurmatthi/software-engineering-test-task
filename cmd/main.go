@@ -61,7 +61,7 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(loggerMiddleware.Handler())
 	r.Use(apiKeyMiddleware.Handler())
-	r.SetTrustedProxies(nil)
+	_ = r.SetTrustedProxies(nil)
 
 	handler.New(r, controllers.Users)
 	if err := r.Run(); err != nil {
