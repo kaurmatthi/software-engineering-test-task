@@ -36,7 +36,7 @@ jobs:
           exit 1
         fi
     
-    - name: golangci-lint
+    - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v8
       with:
         version: v2.5
