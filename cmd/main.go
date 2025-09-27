@@ -18,8 +18,13 @@ import (
 )
 
 func main() {
-	godotenv.Load()
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	err := godotenv.Load()
+	if err != nil {
+		logger.Error("Failed to load .env file")
+		os.Exit(1)
+	}
 
 	apiKey := os.Getenv("X_API_KEY")
 	if apiKey == "" {
@@ -56,6 +61,7 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(loggerMiddleware.Handler())
 	r.Use(apiKeyMiddleware.Handler())
+	r.SetTrustedProxies(nil)
 
 	handler.New(r, controllers.Users)
 	if err := r.Run(); err != nil {
