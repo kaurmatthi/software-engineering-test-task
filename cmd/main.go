@@ -20,10 +20,13 @@ import (
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 
-	err := godotenv.Load()
-	if err != nil {
-		logger.Error("Failed to load .env file")
-		os.Exit(1)
+	if os.Getenv("APP_ENV") != "production" {
+		logger.Info("Running in development mode, loading .env file")
+		err := godotenv.Load()
+		if err != nil {
+			logger.Error("Failed to load .env file")
+			os.Exit(1)
+		}
 	}
 
 	apiKey := os.Getenv("X_API_KEY")
@@ -72,6 +75,7 @@ func main() {
 func loadConfig() (*config.Config, error) {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
+	viper.AddConfigPath("config")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")

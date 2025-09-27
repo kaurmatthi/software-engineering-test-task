@@ -16,7 +16,7 @@ FROM alpine:latest
 RUN addgroup -S crudergroup && adduser -S cruder -G crudergroup
 
 WORKDIR /root/
-COPY --from=builder /app/config.yaml .
+COPY --from=builder /app/config/config.yaml ./config/config.yaml
 COPY --from=builder /app/cruder .
 
 RUN chown -R cruder:crudergroup /root

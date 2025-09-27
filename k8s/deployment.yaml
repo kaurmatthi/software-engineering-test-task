@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cruder-deployment
+  labels:
+    app: cruder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cruder
+  template:
+    metadata:
+      labels:
+        app: cruder
+    spec:
+      containers:
+      - name: cruder-container
+        image: cruder-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: config-volume
+            mountPath: /root/config
+            readOnly: true
+        envFrom:
+        - configMapRef:
+            name: cruder-env
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cruder-config
