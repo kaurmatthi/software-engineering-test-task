@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cruder-deployment
+  namespace: cruder
   labels:
     app: cruder
 spec:
@@ -44,6 +45,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cruder
+  namespace: cruder
 spec:
   ports:
   - port: 80
@@ -57,10 +59,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cruder-env
+  namespace: cruder
 data:
   APP_ENV: "production"
   APP_PORT: "8080"
-  DATABASE_HOST: "postgres"
   X_API_KEY: "supersecret"
   POSTGRES_PASSWORD: "postgres"
 
@@ -69,6 +71,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cruder-config
+  namespace: cruder
 data:
   config.yaml: |
     database:
