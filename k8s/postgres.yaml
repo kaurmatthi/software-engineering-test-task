@@ -34,12 +34,15 @@ spec:
           env:
             - name: POSTGRES_USER
               value: postgres
-            - name: POSTGRES_PASSWORD
-              value: postgres
             - name: POSTGRES_DB
               value: postgres
             - name: POSTGRES_SSL_MODE
               value: disable
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cruder-secrets
+                  key: POSTGRES_PASSWORD
           resources:
             requests:
               cpu: 10m

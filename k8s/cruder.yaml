@@ -31,9 +31,22 @@ spec:
           - name: config-volume
             mountPath: /root/config
             readOnly: true
-        envFrom:
-        - configMapRef:
-            name: cruder-env
+        env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cruder-secrets
+                key: POSTGRES_PASSWORD
+          - name: X_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: cruder-secrets
+                key: X_API_KEY
+          - name: APP_ENV
+            valueFrom:
+              secretKeyRef:
+                name: cruder-secrets
+                key: APP_ENV
         resources:
           requests:
             cpu: 10m
@@ -59,18 +72,6 @@ spec:
   selector:
     app: cruder
   type: LoadBalancer
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cruder-env
-  namespace: cruder
-data:
-  APP_ENV: "production"
-  APP_PORT: "8080"
-  X_API_KEY: "supersecret"
-  POSTGRES_PASSWORD: "postgres"
 
 ---
 apiVersion: v1
