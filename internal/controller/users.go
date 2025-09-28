@@ -21,8 +21,7 @@ func NewUserController(service service.UserService) *UserController {
 
 func (c *UserController) GetAllUsers(ctx *gin.Context) {
 	users, err := c.service.GetAll()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if handleError(ctx, err) {
 		return
 	}
 
@@ -33,12 +32,7 @@ func (c *UserController) GetUserByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
 
 	user, err := c.service.GetByUsername(username)
-	if err != nil {
-		if err == repository.ErrUserNotFound {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+	if handleError(ctx, err) {
 		return
 	}
 

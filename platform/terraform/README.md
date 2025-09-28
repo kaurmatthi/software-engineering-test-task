@@ -40,3 +40,28 @@ export ARM_ACCESS_KEY=$ACCOUNT_KEY
 The ARM_ACCESS_KEY will be used by terraform. Wherever you run the terraform plan or apply, you need this variable.
 
 Finally make sure that the correct storage account name is added in providers.tf file. (backend, storage_account_name)
+
+## Terraform apply
+If everything else is configured, you can run
+
+sh´´´
+terraform init
+terraform plan
+terraform apply
+´´´
+
+When all has successfully been created, you can verify the results
+
+sh```
+resource_group_name=$(terraform output -raw resource_group_name)
+```
+
+Display the name of the created k8s cluster
+sh```
+az aks list --resource-group $resource_group_name --query "[].{\"K8s cluster name\":name}" --output table
+```
+
+And get the kubeconfig for kubectl
+sh```
+echo "$(terraform output kube_config)" > kubeconfig
+```

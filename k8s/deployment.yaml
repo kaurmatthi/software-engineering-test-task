@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: cruder-container
-        image: cruder-app:latest
+        image: kaurmatthi/cruder-app:1.0.1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -27,7 +27,26 @@ spec:
         envFrom:
         - configMapRef:
             name: cruder-env
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
       volumes:
         - name: config-volume
           configMap:
             name: cruder-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cruder
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: cruder
+  type: LoadBalancer
