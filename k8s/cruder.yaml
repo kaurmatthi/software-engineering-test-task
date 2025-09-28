@@ -5,7 +5,7 @@ metadata:
   labels:
     app: cruder
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: cruder
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: cruder-container
-        image: docker.io/kaurmatthi/cruder-app:latest
+        image: docker.io/kaurmatthi/cruder:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
