@@ -77,7 +77,6 @@ func (r *userRepository) GetByID(id int64) (*model.User, error) {
 }
 
 func (r *userRepository) Create(user *model.User) (*model.User, error) {
-	// Need to catch unique constraint violations, right now they will return as 500 errors
 	if err := r.db.QueryRowContext(context.Background(), `INSERT INTO users (username, email, full_name) VALUES ($1, $2, $3) RETURNING id, username, email, full_name`, user.Username, user.Email, user.FullName).
 		Scan(&user.ID, &user.Username, &user.Email, &user.FullName); err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
