@@ -28,8 +28,9 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 
   default_node_pool {
     name       = "agentpool"
-    vm_size    = "standard_b2pls_v2"
+    vm_size    = "standard_b2s"
     node_count = var.node_count
+    temporary_name_for_rotation = "tempnp"
   }
   linux_profile {
     admin_username = var.username
