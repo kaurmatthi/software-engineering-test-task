@@ -28,14 +28,15 @@ jobs:
               container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
               secret-name: registry-secret
 
-         - uses: Azure/k8s-create-secret@v4
+         - uses: Azure/k8s-create-secret@v2
            with:
              namespace: cruder
+             secret-type: generic
              secret-name: cruder-secrets
-             arguments: |
-                --from-literal=APP_ENV=${{ secrets.APP_ENV }} \
-                --from-literal=X_API_KEY=${{ secrets.X_API_KEY }} \
-                --from-literal=POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+             data: |
+                APP_ENV=${{ secrets.APP_ENV }} \
+                X_API_KEY=${{ secrets.X_API_KEY }} \
+                POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
 
          - uses: Azure/k8s-deploy@v4
            with:
