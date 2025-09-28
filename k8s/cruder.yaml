@@ -71,7 +71,7 @@ spec:
     targetPort: 8080
   selector:
     app: cruder
-  type: LoadBalancer
+  type: ClusterIP
 
 ---
 apiVersion: v1
@@ -88,3 +88,28 @@ data:
       user: postgres
       sslmode: disable
 
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cruder-ingress
+  namespace: cruder
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - cruder.sytes.net
+      secretName: cruder-tls
+  rules:
+    - host: cruder.sytes.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cruder
+                port:
+                  number: 8080
