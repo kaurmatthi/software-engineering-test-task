@@ -1,0 +1,39 @@
+on: [push]
+
+jobs:
+   build:
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v4
+
+         - uses: Azure/docker-login@v1
+           with:
+              username: ${{ secrets.REGISTRY_USERNAME }}
+              password: ${{ secrets.REGISTRY_PASSWORD }}
+
+         - run: |
+              docker build . -t docker.io/kaurmatthi/cruder:${{ github.sha }}
+              docker push docker.io/kaurmatthi/cruder:${{ github.sha }}
+
+         - uses: azure/setup-kubectl@v4
+
+         - uses: Azure/k8s-set-context@v4
+           with:
+              kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+         - uses: Azure/k8s-create-secret@v4
+           with:
+              container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+              container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+              secret-name: registry-secret
+
+         - uses: Azure/k8s-deploy@v4
+           with:
+              action: deploy
+              manifests: |
+                 k8s/cruder.yaml
+                 k8s/postgres.yaml
+              images: |
+                 docker.io/kaurmatthi/cruder:${{ github.sha }}
+              imagepullsecrets: |
+                 registry-secret

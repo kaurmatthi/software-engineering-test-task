@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: cruder-container
-        image: kaurmatthi/cruder-app:1.0.1
+        image: docker.io/kaurmatthi/cruder-app:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -38,6 +38,7 @@ spec:
         - name: config-volume
           configMap:
             name: cruder-config
+            
 ---
 apiVersion: v1
 kind: Service
@@ -50,3 +51,30 @@ spec:
   selector:
     app: cruder
   type: LoadBalancer
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cruder-env
+data:
+  APP_ENV: "production"
+  APP_PORT: "8080"
+  DATABASE_HOST: "postgres"
+  X_API_KEY: "supersecret"
+  POSTGRES_PASSWORD: "postgres"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cruder-config
+data:
+  config.yaml: |
+    database:
+      host: postgres
+      db: postgres
+      port: 5432
+      user: postgres
+      sslmode: disable
+
