@@ -23,6 +23,7 @@ jobs:
 
          - uses: Azure/k8s-create-secret@v4
            with:
+              container-registry-url: docker.io
               container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
               container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
               secret-name: registry-secret
