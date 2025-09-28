@@ -34,9 +34,11 @@ jobs:
              secret-type: generic
              secret-name: cruder-secrets
              data: |
-                APP_ENV=${{ secrets.APP_ENV }} \
-                X_API_KEY=${{ secrets.X_API_KEY }} \
-                POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+               {
+                  "APP_ENV": "${{ secrets.APP_ENV_B64 }}",
+                  "X_API_KEY": "${{ secrets.X_API_KEY_B64 }}",
+                  "POSTGRES_PASSWORD": "${{ secrets.POSTGRES_PASSWORD_B64 }}"
+               }
 
          - uses: Azure/k8s-deploy@v4
            with:
