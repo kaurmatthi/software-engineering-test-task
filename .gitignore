@@ -1,2 +1,5 @@
 .env
 postgres_data
+internal/.DS_Store
+**/.terraform
+kubeconfig

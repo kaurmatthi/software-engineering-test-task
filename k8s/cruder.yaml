@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cruder
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cruder-deployment
+  namespace: cruder
+  labels:
+    app: cruder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cruder
+  template:
+    metadata:
+      labels:
+        app: cruder
+    spec:
+      containers:
+      - name: cruder-container
+        image: docker.io/kaurmatthi/cruder:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: config-volume
+            mountPath: /root/config
+            readOnly: true
+        env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cruder-secrets
+                key: POSTGRES_PASSWORD
+          - name: X_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: cruder-secrets
+                key: X_API_KEY
+          - name: APP_ENV
+            valueFrom:
+              secretKeyRef:
+                name: cruder-secrets
+                key: APP_ENV
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cruder-config
+            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cruder
+  namespace: cruder
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: cruder
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cruder-config
+  namespace: cruder
+data:
+  config.yaml: |
+    database:
+      host: postgres
+      db: postgres
+      port: 5432
+      user: postgres
+      sslmode: disable
+

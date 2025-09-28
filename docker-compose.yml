@@ -10,6 +10,18 @@ services:
       POSTGRES_HOST: db
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+  cruder-app:
+    build: .
+    container_name: cruder-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: db # overrides the database:host in config.yaml
+    depends_on:
+      - db
+    restart: on-failure
 
 volumes:
   postgres_data:
