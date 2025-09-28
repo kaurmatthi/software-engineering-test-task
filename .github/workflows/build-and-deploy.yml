@@ -12,7 +12,7 @@ jobs:
               password: ${{ secrets.REGISTRY_PASSWORD }}
 
          - run: |
-              docker build . -t docker.io/kaurmatthi/cruder:${{ github.sha }} --platform linux/arm64
+              docker buildx build . -t docker.io/kaurmatthi/cruder:${{ github.sha }} --platform linux/arm64
               docker push docker.io/kaurmatthi/cruder:${{ github.sha }}
 
          - uses: azure/setup-kubectl@v4
