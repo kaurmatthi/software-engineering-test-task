@@ -34,6 +34,7 @@ jobs:
               manifests: |
                  k8s/cruder.yaml
                  k8s/postgres.yaml
+              namespace: cruder
               images: |
                  docker.io/kaurmatthi/cruder:${{ github.sha }}
               imagepullsecrets: |
