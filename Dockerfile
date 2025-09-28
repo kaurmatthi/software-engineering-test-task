@@ -25,4 +25,5 @@ USER cruder
 
 EXPOSE 8080
 
-CMD ["./cruder"]
+#CMD ["./cruder"]
+CMD ["sleep", "infinity"]
