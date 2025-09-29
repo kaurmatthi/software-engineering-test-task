@@ -53,4 +53,5 @@ create-migration:
 	goose -dir ./migrations create $$name sql
 
 swagger:
-	swag init -g ./cmd/api/v1/main.go -o ./docs
+	mkdir -p docs
+	swag init -o docs --dir ./cmd,./internal/handler,./internal/controller,./internal/model

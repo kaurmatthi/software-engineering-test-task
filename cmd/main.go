@@ -1,3 +1,16 @@
+// @title           Users API
+// @version         1.0
+// @description     This is a CRUD API for users.
+
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-Api-Key
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
+
 package main
 
 import (
@@ -58,7 +71,7 @@ func main() {
 	controllers := controller.NewController(services)
 
 	loggerMiddleware := middleware.NewLoggerMiddleWare(logger)
-	apiKeyMiddleware := middleware.NewApiKeyMiddleware(apiKey, []string{"/healthz"})
+	apiKeyMiddleware := middleware.NewApiKeyMiddleware(apiKey, []string{"/healthz", "/swagger/*any"})
 
 	r := gin.New()
 	r.Use(gin.Recovery())
