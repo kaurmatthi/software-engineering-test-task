@@ -5,6 +5,7 @@ import (
 	"cruder/internal/model"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
@@ -27,12 +28,8 @@ func TestCreateUser_Success(t *testing.T) {
 	createdUser, err := userService.Create(newUser)
 
 	// Then: The result should be the created user and no error
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-	if createdUser != newUser {
-		t.Fatalf("expected user %v, got %v", newUser, createdUser)
-	}
+	assert.NoError(t, err, "expected no error")
+	assert.Equal(t, newUser, createdUser, "expected created user to match input user")
 }
 
 // Given: A user is created with invalid username
@@ -54,12 +51,8 @@ func TestCreateUser_InvalidUsername_Fails(t *testing.T) {
 	createdUser, err := userService.Create(newUser)
 
 	// Then: The result should be an ErrInvalidUsername error and nil user
-	if err != ErrInvalidUsername {
-		t.Fatalf("expected invalid username error, got wrong or no error")
-	}
-	if createdUser != nil {
-		t.Fatalf("expected no user, got %v", createdUser)
-	}
+	assert.ErrorIs(t, err, ErrInvalidUsername, "expected invalid username error")
+	assert.Nil(t, createdUser, "expected no user to be returned")
 }
 
 // Given: A user is created with invalid email
@@ -81,12 +74,8 @@ func TestCreateUser_InvalidEmail_Fails(t *testing.T) {
 	createdUser, err := userService.Create(newUser)
 
 	// Then: The result should be an ErrInvalidEmail error and nil user
-	if err != ErrInvalidEmail {
-		t.Fatalf("expected invalid email error, got wrong or no error")
-	}
-	if createdUser != nil {
-		t.Fatalf("expected no user, got %v", createdUser)
-	}
+	assert.ErrorIs(t, err, ErrInvalidEmail, "expected invalid email error")
+	assert.Nil(t, createdUser, "expected no user to be returned")
 }
 
 // Given: A user is created with invalid full name
@@ -108,12 +97,8 @@ func TestCreateUser_InvalidFullName_Fails(t *testing.T) {
 	createdUser, err := userService.Create(newUser)
 
 	// Then: The result should be an ErrInvalidFullName error and nil user
-	if err != ErrInvalidFullName {
-		t.Fatalf("expected invalid full name error, got wrong or no error")
-	}
-	if createdUser != nil {
-		t.Fatalf("expected no user, got %v", createdUser)
-	}
+	assert.ErrorIs(t, err, ErrInvalidFullName, "expected invalid email error")
+	assert.Nil(t, createdUser, "expected no user to be returned")
 }
 
 // Given: A user is updated with valid username, email, and full name
@@ -135,12 +120,8 @@ func TestUpdateUser_Success(t *testing.T) {
 	createdUser, err := userService.Update(newUser)
 
 	// Then: The result should be the created user and no error
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-	if createdUser != newUser {
-		t.Fatalf("expected user %v, got %v", newUser, createdUser)
-	}
+	assert.NoError(t, err, "expected no error")
+	assert.Equal(t, newUser, createdUser, "expected created user to match input user")
 }
 
 // Given: A user is updated with invalid username
@@ -162,12 +143,8 @@ func TestUpdateUser_InvalidUsername_Fails(t *testing.T) {
 	createdUser, err := userService.Update(newUser)
 
 	// Then: The result should be an ErrInvalidUsername error and nil user
-	if err != ErrInvalidUsername {
-		t.Fatalf("expected invalid username error, got wrong or no error")
-	}
-	if createdUser != nil {
-		t.Fatalf("expected no user, got %v", createdUser)
-	}
+	assert.ErrorIs(t, err, ErrInvalidUsername, "expected invalid username error")
+	assert.Nil(t, createdUser, "expected no user to be returned")
 }
 
 // Given: A user is updated with invalid email
@@ -189,12 +166,8 @@ func TestUpdateUser_InvalidEmail_Fails(t *testing.T) {
 	createdUser, err := userService.Update(newUser)
 
 	// Then: The result should be an ErrInvalidEmail error and nil user
-	if err != ErrInvalidEmail {
-		t.Fatalf("expected invalid email error, got wrong or no error")
-	}
-	if createdUser != nil {
-		t.Fatalf("expected no user, got %v", createdUser)
-	}
+	assert.ErrorIs(t, err, ErrInvalidEmail, "expected invalid email error")
+	assert.Nil(t, createdUser, "expected no user to be returned")
 }
 
 // Given: A user is updated with invalid full name
@@ -216,10 +189,6 @@ func TestUpdateUser_InvalidFullName_Fails(t *testing.T) {
 	createdUser, err := userService.Update(newUser)
 
 	// Then: The result should be an ErrInvalidFullName error and nil user
-	if err != ErrInvalidFullName {
-		t.Fatalf("expected invalid full name error, got wrong or no error")
-	}
-	if createdUser != nil {
-		t.Fatalf("expected no user, got %v", createdUser)
-	}
+	assert.ErrorIs(t, err, ErrInvalidFullName, "expected invalid full name error")
+	assert.Nil(t, createdUser, "expected no user to be returned")
 }
