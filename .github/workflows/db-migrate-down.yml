@@ -1,3 +1,5 @@
+name: DB Migrate Down
+
 on:
   workflow_dispatch:
     inputs:
