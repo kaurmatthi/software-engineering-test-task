@@ -43,6 +43,24 @@ spec:
           image: postgres:latest
           ports:
             - containerPort: 5432
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3        
           env:
             - name: POSTGRES_USER
               value: postgres
