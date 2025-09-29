@@ -3,15 +3,23 @@ package middleware
 import "github.com/gin-gonic/gin"
 
 type ApiKeyMiddleware struct {
-	apiKey string
+	apiKey  string
+	ignored []string
 }
 
-func NewApiKeyMiddleware(apiKey string) *ApiKeyMiddleware {
-	return &ApiKeyMiddleware{apiKey: apiKey}
+func NewApiKeyMiddleware(apiKey string, ignored []string) *ApiKeyMiddleware {
+	return &ApiKeyMiddleware{apiKey: apiKey, ignored: ignored}
 }
 
 func (am *ApiKeyMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		for _, path := range am.ignored {
+			if c.FullPath() == path {
+				c.Next()
+				return
+			}
+		}
+
 		providedKey := c.GetHeader("X-Api-Key")
 		if providedKey == "" {
 			c.AbortWithStatusJSON(401, gin.H{"error": "X-Api-Key header is missing"})

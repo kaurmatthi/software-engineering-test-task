@@ -58,7 +58,7 @@ func main() {
 	controllers := controller.NewController(services)
 
 	loggerMiddleware := middleware.NewLoggerMiddleWare(logger)
-	apiKeyMiddleware := middleware.NewApiKeyMiddleware(apiKey)
+	apiKeyMiddleware := middleware.NewApiKeyMiddleware(apiKey, []string{"/healthz"})
 
 	r := gin.New()
 	r.Use(gin.Recovery())
