@@ -46,7 +46,7 @@ jobs:
            run: |
             kubectl create configmap migrations \
                --from-file=migrations/ \
-               -o yaml --dry-run=client | kubectl apply -f -
+               -o yaml --dry-run=client | kubectl apply -n cruder -f -
 
          - name: Run database migrations
            run: |
