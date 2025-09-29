@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+  namespace: cruder
+spec:
+  template:
+    spec:
+      containers:
+        - name: goose
+          env:
+            - name: MIGRATION_COMMAND
+              value: down

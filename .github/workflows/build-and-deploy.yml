@@ -42,6 +42,18 @@ jobs:
                   "POSTGRES_PASSWORD": "${{ secrets.POSTGRES_PASSWORD_B64 }}"
                }
 
+         - name: Create or update migrations ConfigMap
+           run: |
+            kubectl create configmap migrations \
+               --from-file=migrations/ \
+               -o yaml --dry-run=client | kubectl apply -f -
+
+         - name: Run database migrations
+           run: |
+            kubectl delete job db-migrate -n cruder --ignore-not-found
+            kubectl apply -k k8s/db-migrate/overlays/up 
+            kubectl wait --for=condition=complete job/db-migrate -n cruder --timeout=60s
+            
          - uses: Azure/k8s-deploy@v4
            with:
               action: deploy
