@@ -1,0 +1,33 @@
+name: DB Migrate Down
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type YES to confirm rollback"
+        required: true
+
+jobs:
+   build-and-deploy:
+      runs-on: ubuntu-latest
+      if: ${{ github.event.inputs.confirm == 'YES' }}
+      steps:
+         - uses: actions/checkout@v4
+
+         - uses: azure/setup-kubectl@v4
+
+         - uses: Azure/k8s-set-context@v4
+           with:
+              kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+         - name: Create or update migrations ConfigMap
+           run: |
+            kubectl create configmap migrations \
+               --from-file=migrations/ \
+               -o yaml --dry-run=client | kubectl apply -n cruder -f -
+
+         - name: Run database migrations
+           run: |
+            kubectl delete job db-migrate -n cruder --ignore-not-found
+            kubectl apply -k k8s/db-migrate/overlays/down 
+            kubectl wait --for=condition=complete job/db-migrate -n cruder --timeout=60s
