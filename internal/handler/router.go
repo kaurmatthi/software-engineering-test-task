@@ -3,7 +3,11 @@ package handler
 import (
 	"cruder/internal/controller"
 
+	_ "cruder/docs"
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func New(router *gin.Engine, userController *controller.UserController) *gin.Engine {
@@ -22,5 +26,7 @@ func New(router *gin.Engine, userController *controller.UserController) *gin.Eng
 			userGroup.PUT("/:id", userController.UpdateUser)
 		}
 	}
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router
 }
