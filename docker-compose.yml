@@ -8,8 +8,9 @@ services:
       - .env
     environment:
       POSTGRES_HOST: db
+      PGDATA: /var/lib/postgresql/backup
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/backup
   cruder-app:
     build: .
     container_name: cruder-app
