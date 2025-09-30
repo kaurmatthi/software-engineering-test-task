@@ -67,7 +67,7 @@ func (c *UserController) GetUserByUsername(ctx *gin.Context) {
 // @Failure 404 {object} model.ErrorResponse "user not found"
 // @Failure 500 {object} model.ErrorResponse "internal server error"
 // @Security ApiKeyAuth
-// @Router /users/{id} [get]
+// @Router /users/id/{id} [get]
 func (c *UserController) GetUserByID(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)

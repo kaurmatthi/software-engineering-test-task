@@ -107,37 +107,6 @@ paths:
       summary: Delete user by ID
       tags:
       - users
-    get:
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.User'
-        "400":
-          description: invalid id
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "404":
-          description: user not found
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "500":
-          description: internal server error
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Get user by ID
-      tags:
-      - users
     put:
       consumes:
       - application/json
@@ -179,6 +148,38 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update user by ID
+      tags:
+      - users
+  /users/id/{id}:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: invalid id
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: user not found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user by ID
       tags:
       - users
   /users/username/{username}:
