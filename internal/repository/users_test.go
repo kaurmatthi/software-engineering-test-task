@@ -12,7 +12,7 @@ import (
 
 func newMockDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 	db, mock, _ := sqlmock.New()
-	defer func() { _ = db.Close() }()
+	t.Cleanup(func() { _ = db.Close() })
 	return db, mock
 
 }
