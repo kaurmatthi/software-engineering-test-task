@@ -1,14 +1,20 @@
-# Simple CRUD Interface
+# Cruder – Simple User CRUD API
 
-Rewrite the README according to the application.
+A simple user management CRUD API built with Go (Gin).  
+Features include:
+- JSON structured logging middleware
+- API key authentication (`X-Api-Key`)
+- Auto-generated Swagger documentation at https://cruder.sytes.net/swagger/index.html
 
-The task itself can be found [here](/TASK.md)
+The original task description can be found [here](./TASK.md).
+
 
 ## Prerequisites
 
+- [Go](https://go.dev/learn/)
 - [Docker](https://www.docker.com/get-started/)
-- [Goose](https://github.com/pressly/goose)
-- [Gosec](https://github.com/securego/gosec)
+- [Goose](https://github.com/pressly/goose) (migrations)
+- [Gosec](https://github.com/securego/gosec) (security analysis)
 
 ## Getting Started
 
@@ -40,15 +46,34 @@ goose -dir ./migrations $(DB_DRIVER) $(DB_STRING) up
 go run cmd/main.go
 ```
 
-## API
+4. Generate API documentation
+   
+```
+make swagger
+```
 
-The project features a simple CRUD API for users. It has a JSON logger middleware and an X-Api-Key middleware for authentication.
+5. Run tests
+   
+```
+make test
+```
 
-The project also contains terraform scripts for setting up AKS cluster in Azure. (Read more from readme at ./platform/terraform)
+## Infrastructure
 
-There is also k8s-ingress setup which allows any deployment in the AKS cluster to be accessible through https and with a DNS. (Read more from readme at ./platform/terraform)
+The project also contains terraform scripts for setting up an AKS cluster in Azure. ([Read more](./platform/terraform/README.md)) 
 
-The API itself has been deployed to the AKS cluster, manifests are in k8s folder.
+There is also k8s-ingress setup which allows any deployment in the AKS cluster to be accessible through https and with a DNS. ([Read more](./platform/k8s-ingress/README.md)) 
+
+## Deployment
+
+The API itself has been deployed to the AKS cluster with two replicas.
+
+The kubernetes manifests are located in [k8s folder](./k8s/)
+- cruder.yaml - deployment, service, configmap and ingress for the API
+- postgres.yaml - deployment, service and pvc for postgres
+- db-migrate
+  - base -> migrate.yaml - base for running goose migrations
+  - overlays -> overlays for running either up (apply) or down (rollback) migrations 
 
 ## Pipeline
 
@@ -64,6 +89,6 @@ There are three workflows
   - builds a docker image
   - pushes image to docker hub
   - runs database migrations with goose
-  - applies kubernetes manifests to deploy API and postgres
+  - applies kubernetes manifests to deploy API and postgres to AKS
 - db-migrate-down
   - manually startable workflow in case a db rollback is required
