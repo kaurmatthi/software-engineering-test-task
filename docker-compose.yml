@@ -19,6 +19,7 @@ services:
     env_file:
       - .env
     environment:
+      APP_ENV: production
       DATABASE_HOST: db # overrides the database:host in config.yaml
     depends_on:
       - db

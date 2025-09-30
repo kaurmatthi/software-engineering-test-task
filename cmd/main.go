@@ -2,6 +2,8 @@
 // @version         1.0
 // @description     This is a CRUD API for users.
 
+// @BasePath  /api/v1
+
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name X-Api-Key
