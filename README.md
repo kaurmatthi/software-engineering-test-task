@@ -18,7 +18,9 @@ The original task description can be found [here](./TASK.md).
 
 ## Getting Started
 
-1. Start database
+1. Make a copy of .env.example and name it .env
+
+2. Start database
 
 ```
 ## Via Makefile
@@ -28,7 +30,7 @@ make db
 docker-compose up -d db
 ```
 
-2. Run migrations
+3. Run migrations
 
 ```
 ## Via Makefile
@@ -40,19 +42,19 @@ DB_STRING="host=localhost port=5432 user=postgres password=postgres dbname=postg
 goose -dir ./migrations $(DB_DRIVER) $(DB_STRING) up
 ```
 
-3. Run application
+4. Run application
 
 ```
 go run cmd/main.go
 ```
 
-4. Generate API documentation
+5. Generate API documentation
    
 ```
 make swagger
 ```
 
-5. Run tests
+6. Run tests
    
 ```
 make test
