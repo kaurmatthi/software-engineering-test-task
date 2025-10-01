@@ -70,7 +70,7 @@ func TestGetByUsername_NotFound(t *testing.T) {
 	user, err := repo.GetByUsername("missing")
 
 	// Then: ErrUserNotFound should be returned and user should be nil
-	assert.ErrorIs(t, err, ErrUserNotFound)
+	assert.ErrorIs(t, err, ErrRowNotFound)
 	assert.Nil(t, user)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -106,7 +106,7 @@ func TestGetByID_NotFound(t *testing.T) {
 	user, err := repo.GetByID(99)
 
 	// Then: ErrUserNotFound should be returned and user should be nil
-	assert.ErrorIs(t, err, ErrUserNotFound)
+	assert.ErrorIs(t, err, ErrRowNotFound)
 	assert.Nil(t, user)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -144,8 +144,11 @@ func TestCreateUser_DuplicateUsername(t *testing.T) {
 	// When: calling Create with duplicate username
 	created, err := repo.Create(newUser)
 
-	// Then: ErrUsernameAlreadyExists should be returned
-	assert.ErrorIs(t, err, ErrUsernameAlreadyExists)
+	// Then: UniqueConstraintError with field username should be returned
+	var ce *UniqueConstraintError
+	if assert.ErrorAs(t, err, &ce) {
+		assert.Equal(t, "username", ce.Field)
+	}
 	assert.Nil(t, created)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -163,8 +166,11 @@ func TestCreateUser_DuplicateEmail(t *testing.T) {
 	// When: calling Create with duplicate email
 	created, err := repo.Create(newUser)
 
-	// Then: ErrEmailAlreadyExists should be returned
-	assert.ErrorIs(t, err, ErrEmailAlreadyExists)
+	// Then: UniqueConstraintError with field email should be returned
+	var ce *UniqueConstraintError
+	if assert.ErrorAs(t, err, &ce) {
+		assert.Equal(t, "email", ce.Field)
+	}
 	assert.Nil(t, created)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -182,8 +188,11 @@ func TestCreateUser_DuplicateOther(t *testing.T) {
 	// When: calling Create with some other duplicate
 	created, err := repo.Create(newUser)
 
-	// Then: ErrUserAlreadyExists should be returned
-	assert.ErrorIs(t, err, ErrUserAlreadyExists)
+	// Then: UniqueConstraintError should be returned
+	var ce *UniqueConstraintError
+	if assert.ErrorAs(t, err, &ce) {
+		assert.Equal(t, "", ce.Field)
+	}
 	assert.Nil(t, created)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -217,7 +226,7 @@ func TestDeleteUser_NotFound(t *testing.T) {
 	err := repo.Delete(99)
 
 	// Then: ErrUserNotFound should be returned
-	assert.ErrorIs(t, err, ErrUserNotFound)
+	assert.ErrorIs(t, err, ErrRowNotFound)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -254,7 +263,7 @@ func TestUpdateUser_NotFound(t *testing.T) {
 	updated, err := repo.Update(user)
 
 	// Then: ErrUserNotFound should be returned
-	assert.ErrorIs(t, err, ErrUserNotFound)
+	assert.ErrorIs(t, err, ErrRowNotFound)
 	assert.Nil(t, updated)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }

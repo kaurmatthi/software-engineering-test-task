@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"cruder/internal/model"
-	"cruder/internal/repository"
 	"cruder/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -191,11 +190,11 @@ func handleError(ctx *gin.Context, err error) bool {
 }
 
 var errToStatus = map[error]int{
-	repository.ErrUserNotFound:          http.StatusNotFound,
-	repository.ErrUserAlreadyExists:     http.StatusConflict,
-	repository.ErrUsernameAlreadyExists: http.StatusConflict,
-	repository.ErrEmailAlreadyExists:    http.StatusConflict,
-	service.ErrInvalidEmail:             http.StatusBadRequest,
-	service.ErrInvalidUsername:          http.StatusBadRequest,
-	service.ErrInvalidFullName:          http.StatusBadRequest,
+	service.ErrUserNotFound:          http.StatusNotFound,
+	service.ErrUserAlreadyExists:     http.StatusConflict,
+	service.ErrUsernameAlreadyExists: http.StatusConflict,
+	service.ErrEmailAlreadyExists:    http.StatusConflict,
+	service.ErrInvalidEmail:          http.StatusBadRequest,
+	service.ErrInvalidUsername:       http.StatusBadRequest,
+	service.ErrInvalidFullName:       http.StatusBadRequest,
 }

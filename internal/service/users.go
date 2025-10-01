@@ -29,29 +29,79 @@ func (s *userService) GetAll() ([]model.User, error) {
 }
 
 func (s *userService) GetByUsername(username string) (*model.User, error) {
-	return s.repo.GetByUsername(username)
+	user, err := s.repo.GetByUsername(username)
+
+	if err != nil {
+		if errors.Is(err, repository.ErrRowNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *userService) GetByID(id int64) (*model.User, error) {
-	return s.repo.GetByID(id)
+	user, err := s.repo.GetByID(id)
+
+	if err != nil {
+		if errors.Is(err, repository.ErrRowNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *userService) Create(user *model.User) (*model.User, error) {
 	if err := ValidateUser(*user); err != nil {
 		return nil, err
 	}
-	return s.repo.Create(user)
+	user, err := s.repo.Create(user)
+
+	if ce, ok := err.(*repository.UniqueConstraintError); ok {
+		return nil, handleUniqueConstraintError(ce)
+	}
+
+	return user, err
+}
+
+func handleUniqueConstraintError(err *repository.UniqueConstraintError) error {
+	switch err.Field {
+	case "username":
+		return ErrUsernameAlreadyExists
+	case "email":
+		return ErrEmailAlreadyExists
+	default:
+		return ErrUserAlreadyExists
+	}
 }
 
 func (s *userService) Delete(id int64) error {
-	return s.repo.Delete(id)
+	err := s.repo.Delete(id)
+
+	if errors.Is(err, repository.ErrRowNotFound) {
+		return ErrUserNotFound
+	}
+	return err
 }
 
 func (s *userService) Update(user *model.User) (*model.User, error) {
 	if err := ValidateUser(*user); err != nil {
 		return nil, err
 	}
-	return s.repo.Update(user)
+
+	user, err := s.repo.Update(user)
+
+	if errors.Is(err, repository.ErrRowNotFound) {
+		return nil, ErrUserNotFound
+	}
+
+	if ce, ok := err.(*repository.UniqueConstraintError); ok {
+		return nil, handleUniqueConstraintError(ce)
+	}
+	return user, err
 }
 
 func ValidateUser(user model.User) error {
@@ -71,6 +121,12 @@ var emailRegex = regexp.MustCompile(`^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$`)
 var usernameRegex = regexp.MustCompile(`^[a-z][a-z0-9_]{2,49}$`)
 var fullNameRegex = regexp.MustCompile(`^[A-Za-z][A-Za-z' -]{0,98}[A-Za-z]$`)
 
-var ErrInvalidEmail = errors.New("invalid email format")
-var ErrInvalidUsername = errors.New("invalid username format (3-50 chars, lowercase letters, numbers, underscores, starts with letter)")
-var ErrInvalidFullName = errors.New("invalid full name format (2-100 chars, letters, spaces, apostrophes, hyphens, starts/ends with letter)")
+var (
+	ErrUserNotFound          = errors.New("user not found")
+	ErrUserAlreadyExists     = errors.New("user already exists")
+	ErrUsernameAlreadyExists = errors.New("username already exists")
+	ErrEmailAlreadyExists    = errors.New("email already exists")
+	ErrInvalidEmail          = errors.New("invalid email format")
+	ErrInvalidUsername       = errors.New("invalid username format (3-50 chars, lowercase letters, numbers, underscores, starts with letter)")
+	ErrInvalidFullName       = errors.New("invalid full name format (2-100 chars, letters, spaces, apostrophes, hyphens, starts/ends with letter)")
+)

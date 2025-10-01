@@ -4,7 +4,6 @@ import (
 	"bytes"
 	mock_service "cruder/internal/mocks/service"
 	"cruder/internal/model"
-	"cruder/internal/repository"
 	"cruder/internal/service"
 	"encoding/json"
 	"net/http"
@@ -81,7 +80,7 @@ func TestGetUserByUsername_NotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockSvc := mock_service.NewMockUserService(ctrl)
-	mockSvc.EXPECT().GetByUsername("missing").Return(nil, repository.ErrUserNotFound)
+	mockSvc.EXPECT().GetByUsername("missing").Return(nil, service.ErrUserNotFound)
 
 	controller := NewUserController(mockSvc)
 	router := setupUserRouter(controller)
@@ -197,7 +196,7 @@ func TestDeleteUser_NotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockSvc := mock_service.NewMockUserService(ctrl)
-	mockSvc.EXPECT().Delete(int64(99)).Return(repository.ErrUserNotFound)
+	mockSvc.EXPECT().Delete(int64(99)).Return(service.ErrUserNotFound)
 
 	controller := NewUserController(mockSvc)
 	router := setupUserRouter(controller)
@@ -272,7 +271,7 @@ func TestHandleError_UserNotFound(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrUserNotFound
-	result := handleError(c, repository.ErrUserNotFound)
+	result := handleError(c, service.ErrUserNotFound)
 
 	// Then: should return true and response with 404 + correct error message
 	assert.True(t, result)
@@ -289,7 +288,7 @@ func TestHandleError_UserAlreadyExists(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrUserAlreadyExists
-	result := handleError(c, repository.ErrUserAlreadyExists)
+	result := handleError(c, service.ErrUserAlreadyExists)
 
 	// Then: should return true and response with 409 + correct error message
 	assert.True(t, result)
@@ -306,7 +305,7 @@ func TestHandleError_UsernameAlreadyExists(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrUsernameAlreadyExists
-	result := handleError(c, repository.ErrUsernameAlreadyExists)
+	result := handleError(c, service.ErrUsernameAlreadyExists)
 
 	// Then: should return true and response with 409 + correct error message
 	assert.True(t, result)
@@ -323,7 +322,7 @@ func TestHandleError_EmailAlreadyExists(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrEmailAlreadyExists
-	result := handleError(c, repository.ErrEmailAlreadyExists)
+	result := handleError(c, service.ErrEmailAlreadyExists)
 
 	// Then: should return true and response with 409 + correct error message
 	assert.True(t, result)
