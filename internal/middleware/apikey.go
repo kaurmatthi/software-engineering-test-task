@@ -1,6 +1,10 @@
 package middleware
 
-import "github.com/gin-gonic/gin"
+import (
+	"slices"
+
+	"github.com/gin-gonic/gin"
+)
 
 type ApiKeyMiddleware struct {
 	apiKey  string
@@ -13,11 +17,9 @@ func NewApiKeyMiddleware(apiKey string, ignored []string) *ApiKeyMiddleware {
 
 func (am *ApiKeyMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		for _, path := range am.ignored {
-			if c.FullPath() == path {
-				c.Next()
-				return
-			}
+		if slices.Contains(am.ignored, c.FullPath()) {
+			c.Next()
+			return
 		}
 
 		providedKey := c.GetHeader("X-Api-Key")

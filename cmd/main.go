@@ -20,14 +20,11 @@ import (
 	"cruder/internal/middleware"
 	"cruder/internal/repository"
 	"cruder/internal/service"
-	"fmt"
 	"log/slog"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -48,7 +45,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	cfg, err := loadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		logger.Error("failed to load config", slog.Any("err", err))
 		os.Exit(1)
@@ -79,27 +76,8 @@ func main() {
 	r.Use(apiKeyMiddleware.Handler())
 	_ = r.SetTrustedProxies(nil)
 
-	handler.New(r, controllers.Users)
+	handler.New(r, controllers.Users, controllers.Health)
 	if err := r.Run(); err != nil {
 		logger.Error("failed to run server", slog.Any("err", err))
 	}
-}
-
-func loadConfig() (*config.Config, error) {
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AutomaticEnv()
-	viper.AddConfigPath("config")
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("error reading config file: %w", err)
-	}
-
-	var cfg config.Config
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("unable to decode config into struct: %w", err)
-	}
-	return &cfg, nil
 }

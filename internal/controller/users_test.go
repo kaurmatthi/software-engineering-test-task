@@ -4,7 +4,6 @@ import (
 	"bytes"
 	mock_service "cruder/internal/mocks/service"
 	"cruder/internal/model"
-	"cruder/internal/repository"
 	"cruder/internal/service"
 	"encoding/json"
 	"net/http"
@@ -16,7 +15,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func setupRouter(c *UserController) *gin.Engine {
+func setupUserRouter(c *UserController) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 	r.GET("/users", c.GetAllUsers)
@@ -37,7 +36,7 @@ func TestGetAllUsers_Success(t *testing.T) {
 	mockSvc.EXPECT().GetAll().Return(users, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users is called
 	req, _ := http.NewRequest("GET", "/users", nil)
@@ -61,7 +60,7 @@ func TestGetUserByUsername_Success(t *testing.T) {
 	mockSvc.EXPECT().GetByUsername("john_doe").Return(expected, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/username/john_doe is called
 	req, _ := http.NewRequest("GET", "/users/username/john_doe", nil)
@@ -81,10 +80,10 @@ func TestGetUserByUsername_NotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockSvc := mock_service.NewMockUserService(ctrl)
-	mockSvc.EXPECT().GetByUsername("missing").Return(nil, repository.ErrUserNotFound)
+	mockSvc.EXPECT().GetByUsername("missing").Return(nil, service.ErrUserNotFound)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/username/missing is called
 	req, _ := http.NewRequest("GET", "/users/username/missing", nil)
@@ -107,7 +106,7 @@ func TestGetUserByID_Success(t *testing.T) {
 	mockSvc.EXPECT().GetByID(int64(1)).Return(expected, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/id/1 is called
 	req, _ := http.NewRequest("GET", "/users/id/1", nil)
@@ -129,7 +128,7 @@ func TestGetUserByID_InvalidID(t *testing.T) {
 	mockSvc := mock_service.NewMockUserService(ctrl)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/id/abc is called
 	req, _ := http.NewRequest("GET", "/users/id/abc", nil)
@@ -153,7 +152,7 @@ func TestCreateUser_Success(t *testing.T) {
 	mockSvc.EXPECT().Create(input).Return(created, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	body, _ := json.Marshal(input)
 
@@ -177,7 +176,7 @@ func TestCreateUser_InvalidBody(t *testing.T) {
 	mockSvc := mock_service.NewMockUserService(ctrl)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: POST /users with invalid JSON
 	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer([]byte("{bad json")))
@@ -197,10 +196,10 @@ func TestDeleteUser_NotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockSvc := mock_service.NewMockUserService(ctrl)
-	mockSvc.EXPECT().Delete(int64(99)).Return(repository.ErrUserNotFound)
+	mockSvc.EXPECT().Delete(int64(99)).Return(service.ErrUserNotFound)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: DELETE /users/99 is called
 	req, _ := http.NewRequest("DELETE", "/users/99", nil)
@@ -221,7 +220,7 @@ func TestUpdateUser_IDMismatch(t *testing.T) {
 	mockSvc := mock_service.NewMockUserService(ctrl)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	user := model.User{ID: 2, Username: "john", Email: "john@doe.ee", FullName: "John Doe"}
 	body, _ := json.Marshal(user)
@@ -249,7 +248,7 @@ func TestUpdateUser_Success(t *testing.T) {
 	mockSvc.EXPECT().Update(input).Return(updated, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	body, _ := json.Marshal(input)
 
@@ -272,7 +271,7 @@ func TestHandleError_UserNotFound(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrUserNotFound
-	result := handleError(c, repository.ErrUserNotFound)
+	result := handleError(c, service.ErrUserNotFound)
 
 	// Then: should return true and response with 404 + correct error message
 	assert.True(t, result)
@@ -289,7 +288,7 @@ func TestHandleError_UserAlreadyExists(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrUserAlreadyExists
-	result := handleError(c, repository.ErrUserAlreadyExists)
+	result := handleError(c, service.ErrUserAlreadyExists)
 
 	// Then: should return true and response with 409 + correct error message
 	assert.True(t, result)
@@ -306,7 +305,7 @@ func TestHandleError_UsernameAlreadyExists(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrUsernameAlreadyExists
-	result := handleError(c, repository.ErrUsernameAlreadyExists)
+	result := handleError(c, service.ErrUsernameAlreadyExists)
 
 	// Then: should return true and response with 409 + correct error message
 	assert.True(t, result)
@@ -323,7 +322,7 @@ func TestHandleError_EmailAlreadyExists(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 
 	// When: calling handleError with ErrEmailAlreadyExists
-	result := handleError(c, repository.ErrEmailAlreadyExists)
+	result := handleError(c, service.ErrEmailAlreadyExists)
 
 	// Then: should return true and response with 409 + correct error message
 	assert.True(t, result)

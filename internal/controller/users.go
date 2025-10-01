@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"cruder/internal/model"
-	"cruder/internal/repository"
 	"cruder/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,7 @@ func NewUserController(service service.UserService) *UserController {
 // @Success 200 {array} model.User
 // @Failure 500 {object} model.ErrorResponse "internal server error"
 // @Security ApiKeyAuth
-// @Router /users [get]
+// @Router /users/ [get]
 func (c *UserController) GetAllUsers(ctx *gin.Context) {
 	users, err := c.service.GetAll()
 	if handleError(ctx, err) {
@@ -96,7 +95,7 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 // @Failure 409 {object} model.ErrorResponse "user with username/email already exists"
 // @Failure 500 {object} model.ErrorResponse "internal server error"
 // @Security ApiKeyAuth
-// @Router /users [post]
+// @Router /users/ [post]
 func (c *UserController) CreateUser(ctx *gin.Context) {
 	var user model.User
 
@@ -191,11 +190,11 @@ func handleError(ctx *gin.Context, err error) bool {
 }
 
 var errToStatus = map[error]int{
-	repository.ErrUserNotFound:          http.StatusNotFound,
-	repository.ErrUserAlreadyExists:     http.StatusConflict,
-	repository.ErrUsernameAlreadyExists: http.StatusConflict,
-	repository.ErrEmailAlreadyExists:    http.StatusConflict,
-	service.ErrInvalidEmail:             http.StatusBadRequest,
-	service.ErrInvalidUsername:          http.StatusBadRequest,
-	service.ErrInvalidFullName:          http.StatusBadRequest,
+	service.ErrUserNotFound:          http.StatusNotFound,
+	service.ErrUserAlreadyExists:     http.StatusConflict,
+	service.ErrUsernameAlreadyExists: http.StatusConflict,
+	service.ErrEmailAlreadyExists:    http.StatusConflict,
+	service.ErrInvalidEmail:          http.StatusBadRequest,
+	service.ErrInvalidUsername:       http.StatusBadRequest,
+	service.ErrInvalidFullName:       http.StatusBadRequest,
 }
