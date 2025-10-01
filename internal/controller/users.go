@@ -26,7 +26,7 @@ func NewUserController(service service.UserService) *UserController {
 // @Success 200 {array} model.User
 // @Failure 500 {object} model.ErrorResponse "internal server error"
 // @Security ApiKeyAuth
-// @Router /users [get]
+// @Router /users/ [get]
 func (c *UserController) GetAllUsers(ctx *gin.Context) {
 	users, err := c.service.GetAll()
 	if handleError(ctx, err) {
@@ -96,7 +96,7 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 // @Failure 409 {object} model.ErrorResponse "user with username/email already exists"
 // @Failure 500 {object} model.ErrorResponse "internal server error"
 // @Security ApiKeyAuth
-// @Router /users [post]
+// @Router /users/ [post]
 func (c *UserController) CreateUser(ctx *gin.Context) {
 	var user model.User
 

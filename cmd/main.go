@@ -79,7 +79,7 @@ func main() {
 	r.Use(apiKeyMiddleware.Handler())
 	_ = r.SetTrustedProxies(nil)
 
-	handler.New(r, controllers.Users)
+	handler.New(r, controllers.Users, controllers.Health)
 	if err := r.Run(); err != nil {
 		logger.Error("failed to run server", slog.Any("err", err))
 	}
