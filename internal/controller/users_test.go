@@ -16,7 +16,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func setupRouter(c *UserController) *gin.Engine {
+func setupUserRouter(c *UserController) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 	r.GET("/users", c.GetAllUsers)
@@ -37,7 +37,7 @@ func TestGetAllUsers_Success(t *testing.T) {
 	mockSvc.EXPECT().GetAll().Return(users, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users is called
 	req, _ := http.NewRequest("GET", "/users", nil)
@@ -61,7 +61,7 @@ func TestGetUserByUsername_Success(t *testing.T) {
 	mockSvc.EXPECT().GetByUsername("john_doe").Return(expected, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/username/john_doe is called
 	req, _ := http.NewRequest("GET", "/users/username/john_doe", nil)
@@ -84,7 +84,7 @@ func TestGetUserByUsername_NotFound(t *testing.T) {
 	mockSvc.EXPECT().GetByUsername("missing").Return(nil, repository.ErrUserNotFound)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/username/missing is called
 	req, _ := http.NewRequest("GET", "/users/username/missing", nil)
@@ -107,7 +107,7 @@ func TestGetUserByID_Success(t *testing.T) {
 	mockSvc.EXPECT().GetByID(int64(1)).Return(expected, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/id/1 is called
 	req, _ := http.NewRequest("GET", "/users/id/1", nil)
@@ -129,7 +129,7 @@ func TestGetUserByID_InvalidID(t *testing.T) {
 	mockSvc := mock_service.NewMockUserService(ctrl)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: GET /users/id/abc is called
 	req, _ := http.NewRequest("GET", "/users/id/abc", nil)
@@ -153,7 +153,7 @@ func TestCreateUser_Success(t *testing.T) {
 	mockSvc.EXPECT().Create(input).Return(created, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	body, _ := json.Marshal(input)
 
@@ -177,7 +177,7 @@ func TestCreateUser_InvalidBody(t *testing.T) {
 	mockSvc := mock_service.NewMockUserService(ctrl)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: POST /users with invalid JSON
 	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer([]byte("{bad json")))
@@ -200,7 +200,7 @@ func TestDeleteUser_NotFound(t *testing.T) {
 	mockSvc.EXPECT().Delete(int64(99)).Return(repository.ErrUserNotFound)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	// When: DELETE /users/99 is called
 	req, _ := http.NewRequest("DELETE", "/users/99", nil)
@@ -221,7 +221,7 @@ func TestUpdateUser_IDMismatch(t *testing.T) {
 	mockSvc := mock_service.NewMockUserService(ctrl)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	user := model.User{ID: 2, Username: "john", Email: "john@doe.ee", FullName: "John Doe"}
 	body, _ := json.Marshal(user)
@@ -249,7 +249,7 @@ func TestUpdateUser_Success(t *testing.T) {
 	mockSvc.EXPECT().Update(input).Return(updated, nil)
 
 	controller := NewUserController(mockSvc)
-	router := setupRouter(controller)
+	router := setupUserRouter(controller)
 
 	body, _ := json.Marshal(input)
 
